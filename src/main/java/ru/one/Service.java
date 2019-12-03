@@ -1,8 +1,12 @@
 package ru.one;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 public class Service implements Runnable{
+    private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
     private static volatile Service service;
     private final String name;
     private final List<Service> dependencies;
@@ -40,7 +44,15 @@ public class Service implements Runnable{
     @Override
     public void run() {
         if (!started){
-            System.out.println(name + " is Started");
+            LOGGER.info("{} start", name);
+            try {
+                Thread.sleep(10);
+                LOGGER.info("{} is working", name);
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            LOGGER.info("{} end", name);
             started = true;
         }
     }
