@@ -1,29 +1,46 @@
 package ru.one;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
 
-public class Service implements Runnable {
-    private Logger LOGGER = LoggerFactory.getLogger("Service");
+public class Service implements Runnable{
+    private static volatile Service service;
     private final String name;
+    private final List<Service> dependencies;
 
-    public Service(String name) {
+    private Service(String name, List<Service> dependencies) {
         this.name = name;
+        this.dependencies = dependencies;
+    }
+
+    public static Service getInstance(String name, List<Service> dependencies) {
+        if (service == null) {
+            synchronized (Service.class) {
+                if (service == null) {
+                    return new Service(name, dependencies);
+                }
+            }
+        }
+        return service;
+    }
+
+    public List<Service> getDependencies() {
+        return dependencies;
+    }
+
+    public void addDependency(Service service) {
+        dependencies.add(service);
+    }
+
+    public void removeDependency(Service service) {
+        dependencies.remove(service);
     }
 
     public String getName() {
         return name;
     }
 
+    @Override
     public void run() {
-        long time = System.currentTimeMillis();
-        try {
-            LOGGER.info("{} started at - {}", name, time);
-            Thread.sleep(1000);
-            long nextTime = System.currentTimeMillis();
-            LOGGER.info("{} stopped at - {}  used time - {}", name, nextTime, nextTime - time);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        System.out.println(name + " is Started");
     }
 }
