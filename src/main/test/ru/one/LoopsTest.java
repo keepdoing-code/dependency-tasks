@@ -5,9 +5,10 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class LoopsTest {
-
+    private static final int MAX_THREAD_COUNT = 10;
     private List<Service> services = new ArrayList<>();
     private ServiceExecutor executor;
 
@@ -54,18 +55,30 @@ public class LoopsTest {
         services.add(f);
         services.add(g);
 
-        executor = new ServiceExecutor(services);
+        executor = new ServiceExecutor(services, MAX_THREAD_COUNT);
     }
 
-    @Test (expected = RuntimeException.class)
+    @Test(expected = RuntimeException.class)
     public void checkLoops() {
         executor.check();
     }
 
+    @Test(expected = RuntimeException.class)
+    public void executeWithLoop() throws ExecutionException, InterruptedException {
+        executor.execute();
+    }
+
     @Test
-    public void checkWithoutLoops(){
+    public void checkWithoutLoops() {
         e.removeDependency(a);
-        executor = new ServiceExecutor(services);
+        executor = new ServiceExecutor(services, MAX_THREAD_COUNT);
         executor.check();
+    }
+
+    @Test
+    public void execute() throws ExecutionException, InterruptedException {
+        e.removeDependency(a);
+        executor = new ServiceExecutor(services, MAX_THREAD_COUNT);
+        executor.execute();
     }
 }

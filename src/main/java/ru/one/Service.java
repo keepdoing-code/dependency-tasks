@@ -6,10 +6,12 @@ public class Service implements Runnable{
     private static volatile Service service;
     private final String name;
     private final List<Service> dependencies;
+    private boolean started;
 
     private Service(String name, List<Service> dependencies) {
         this.name = name;
         this.dependencies = dependencies;
+        this.started = false;
     }
 
     public static Service getInstance(String name, List<Service> dependencies) {
@@ -35,12 +37,11 @@ public class Service implements Runnable{
         dependencies.remove(service);
     }
 
-    public String getName() {
-        return name;
-    }
-
     @Override
     public void run() {
-        System.out.println(name + " is Started");
+        if (!started){
+            System.out.println(name + " is Started");
+            started = true;
+        }
     }
 }
