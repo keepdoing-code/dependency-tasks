@@ -7,35 +7,30 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class Worker {
 
-    private Logger LOGGER = LoggerFactory.getLogger("Service");
+    private static Logger LOGGER = LoggerFactory.getLogger("Service");
 
     private ExecutorService executorService;
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-        run(new LinkedList<>(), 2, new HashMap<>());
-        TimeUnit.SECONDS.sleep(2);
+        LOGGER.info("Thread started");
+        new Worker().run(new LinkedList<>(), 2, new HashMap<>());
+        LOGGER.info("App end");
     }
 
-    public static void run(List<Service> list, int maxThreadCount, Map<String, List<String>> relations) throws ExecutionException, InterruptedException {
-        CompletableFuture<Void> future = CompletableFuture.runAsync(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    TimeUnit.SECONDS.sleep(2);
-                } catch (InterruptedException e) {
-                    throw new IllegalStateException(e);
-                }
-                System.out.println("Я буду работать в отдельном потоке, а не в главном.");
-            }
-        });
-        future.get();
+    public void run(List<Service> list, int maxThreadCount, Map<String, List<String>> relations) throws ExecutionException, InterruptedException {
+        executorService = Executors.newFixedThreadPool(maxThreadCount);
+        CompletableFuture future = CompletableFuture.runAsync(new Service("-1-", 3), executorService);
+        CompletableFuture future1 = CompletableFuture.runAsync(new Service("-2-", 4), executorService);
+        CompletableFuture future2 = CompletableFuture.runAsync(new Service("-3-", 4), executorService).thenRun(new Service("-4-", 4));
+        CompletableFuture futureAll = CompletableFuture.allOf(future, future1, future2);
+        LOGGER.info("End init threads\nWaiting for thread end");
+//        future.get();
+        futureAll.get();
+        LOGGER.info("Threads end");
+        executorService.shutdown();
     }
 }

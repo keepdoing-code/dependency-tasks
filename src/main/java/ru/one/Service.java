@@ -3,12 +3,16 @@ package ru.one;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.TimeUnit;
+
 public class Service implements Runnable {
     private Logger LOGGER = LoggerFactory.getLogger("Service");
     private final String name;
+    private final int workTime;
 
-    public Service(String name) {
+    public Service(String name, int workTime) {
         this.name = name;
+        this.workTime = workTime;
     }
 
     public String getName() {
@@ -16,12 +20,12 @@ public class Service implements Runnable {
     }
 
     public void run() {
-        long time = System.currentTimeMillis();
         try {
-            LOGGER.info("{} started at - {}", name, time);
-            Thread.sleep(1000);
-            long nextTime = System.currentTimeMillis();
-            LOGGER.info("{} stopped at - {}  used time - {}", name, nextTime, nextTime - time);
+            long inTime = System.currentTimeMillis();
+            LOGGER.info("{} /\\", name);
+            TimeUnit.SECONDS.sleep(workTime);
+            long outTime = System.currentTimeMillis();
+            LOGGER.info("{} \\/  time = {}s", name, (outTime-inTime)/1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
