@@ -28,7 +28,6 @@ public class Worker {
         CompletableFuture future2 = CompletableFuture.runAsync(new Service("-3-", 4), executorService).thenRun(new Service("-4-", 4));
         CompletableFuture futureAll = CompletableFuture.allOf(future, future1, future2);
         LOGGER.info("End init threads\nWaiting for thread end");
-//        future.get();
         futureAll.get();
         LOGGER.info("Threads end");
         executorService.shutdown();
