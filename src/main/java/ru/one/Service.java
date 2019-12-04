@@ -5,12 +5,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class Service implements Runnable{
+public class Service implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
     private static volatile Service service;
     private final String name;
     private final List<Service> dependencies;
-    private boolean started;
+    volatile private boolean started;
 
     private Service(String name, List<Service> dependencies) {
         this.name = name;
@@ -43,15 +43,19 @@ public class Service implements Runnable{
 
     @Override
     public void run() {
-        if (!started){
-            LOGGER.info("{} start", name);
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        if (!started) {
+            synchronized (this) {
+                if (!started) {
+                    LOGGER.info("{} start", name);
+                    started = true;
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    LOGGER.info("{} end", name);
+                }
             }
-            started = true;
-            LOGGER.info("{} end", name);
         }
     }
 }
