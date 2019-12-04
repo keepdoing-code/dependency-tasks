@@ -3,31 +3,59 @@ package ru.one;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 public class Service implements Runnable {
-    private Logger LOGGER = LoggerFactory.getLogger("Service");
+    private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
+    private static volatile Service service;
     private final String name;
-    private final int workTime;
+    private final List<Service> dependencies;
+    volatile private boolean started;
 
-    public Service(String name, int workTime) {
+    private Service(String name, List<Service> dependencies) {
         this.name = name;
-        this.workTime = workTime;
+        this.dependencies = dependencies;
+        this.started = false;
     }
 
-    public String getName() {
-        return name;
+    public static Service getInstance(String name, List<Service> dependencies) {
+        if (service == null) {
+            synchronized (Service.class) {
+                if (service == null) {
+                    return new Service(name, dependencies);
+                }
+            }
+        }
+        return service;
     }
 
+    public List<Service> getDependencies() {
+        return dependencies;
+    }
+
+    public void addDependency(Service service) {
+        dependencies.add(service);
+    }
+
+    public void removeDependency(Service service) {
+        dependencies.remove(service);
+    }
+
+    @Override
     public void run() {
-        try {
-            long inTime = System.currentTimeMillis();
-            LOGGER.info("{} /\\", name);
-            TimeUnit.SECONDS.sleep(workTime);
-            long outTime = System.currentTimeMillis();
-            LOGGER.info("{} \\/  time = {}s", name, (outTime-inTime)/1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (!started) {
+            synchronized (this) {
+                if (!started) {
+                    LOGGER.info("{} start", name);
+                    started = true;
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    LOGGER.info("{} end", name);
+                }
+            }
         }
     }
 }
