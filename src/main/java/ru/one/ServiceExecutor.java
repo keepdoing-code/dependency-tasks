@@ -3,6 +3,7 @@ package ru.one;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -32,6 +33,7 @@ public class ServiceExecutor {
     }
 
     private void execute(List<Service> services) throws ExecutionException, InterruptedException {
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
         if (services == null || services.isEmpty()) {
             return;
         }
@@ -39,8 +41,10 @@ public class ServiceExecutor {
             List<Service> dependencies = service.getDependencies();
             execute(dependencies);
             CompletableFuture<Void> future = CompletableFuture.runAsync(service, executorService);
-            future.get();
+            futures.add(future);
+//            future.get();
         }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{})).get();
     }
 
     private void check(List<Service> services) {

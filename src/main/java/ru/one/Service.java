@@ -47,13 +47,11 @@ public class Service implements Runnable{
             LOGGER.info("{} start", name);
             try {
                 Thread.sleep(10);
-                LOGGER.info("{} is working", name);
-                Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            LOGGER.info("{} end", name);
             started = true;
+            LOGGER.info("{} end", name);
         }
     }
 }

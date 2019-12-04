@@ -43,7 +43,7 @@ public class LoopsTest {
         b.addDependency(d);
         b.addDependency(e);
         b.addDependency(f);
-        e.addDependency(a);
+        e.addDependency(a); // loop dependency
         f.addDependency(g);
         g.addDependency(e);
 
