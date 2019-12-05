@@ -15,12 +15,13 @@ public class ServiceExecutor {
     private int weight;
     private int maxWeight;
     private final List<Service> services;
-    private final ExecutorService executorService;
+    private ExecutorService executorService;
+    private final int maxThreadCount;
 
     public ServiceExecutor(List<Service> services, int maxThreadCount) {
         this.services = services;
         maxWeight = services.size() * services.size();
-        executorService = Executors.newFixedThreadPool(maxThreadCount);
+        this.maxThreadCount = maxThreadCount;
     }
 
     public void check() {
@@ -28,8 +29,10 @@ public class ServiceExecutor {
     }
 
     public void execute() throws ExecutionException, InterruptedException {
+        executorService = Executors.newFixedThreadPool(maxThreadCount);
         check(services);
         execute(services);
+        executorService.shutdown();
     }
 
     private void execute(List<Service> services) throws ExecutionException, InterruptedException {
@@ -42,7 +45,6 @@ public class ServiceExecutor {
             execute(dependencies);
             CompletableFuture<Void> future = CompletableFuture.runAsync(service, executorService);
             futures.add(future);
-//            future.get();
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{})).get();
     }
@@ -52,8 +54,8 @@ public class ServiceExecutor {
             return;
         }
         if (weight > maxWeight) {
-            LOGGER.error("loop found");
-            throw new RuntimeException("loop found");
+            LOGGER.error("Loop found");
+            throw new RuntimeException("Loop found");
         }
         for (Service service : services) {
             List<Service> dependencies = service.getDependencies();

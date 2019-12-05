@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class LoopsTest {
-    private static final int MAX_THREAD_COUNT = 10;
+    private static final int MAX_THREAD_COUNT = 5;
     private List<Service> services = new ArrayList<>();
     private ServiceExecutor executor;
 
