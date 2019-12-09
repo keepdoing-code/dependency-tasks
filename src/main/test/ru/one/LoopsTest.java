@@ -47,15 +47,7 @@ public class LoopsTest {
         f.addDependency(g);
         g.addDependency(e);
 
-        services.add(a);
-        services.add(b);
-        services.add(c);
-        services.add(d);
-        services.add(e);
-        services.add(f);
-        services.add(g);
-
-        executor = new ServiceExecutor(services, MAX_THREAD_COUNT);
+        executor = new ServiceExecutor(Service.getAllServices(), MAX_THREAD_COUNT);
     }
 
     @Test(expected = RuntimeException.class)

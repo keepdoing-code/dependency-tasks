@@ -3,6 +3,7 @@ package ru.one;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,10 @@ public class Service implements Runnable {
     private final String name;
     private final List<Service> dependencies;
     volatile private boolean started;
+
+    public static List<Service> getAllServices() {
+        return new ArrayList<>(services.values());
+    }
 
     private Service(String name, List<Service> dependencies) {
         this.name = name;
